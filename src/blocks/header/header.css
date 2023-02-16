@@ -1,0 +1,25 @@
+.header {
+  display: flex;
+  flex-direction: column;
+  padding-top: 45px;
+  max-width: 880px;
+}
+
+.header::after {
+  content: "";
+  border: 1px solid rgba(84 84 84 / 70%);
+  margin-top: 41px;
+  box-sizing: border-box;
+}
+
+@media screen and (max-width: 650px) {
+  .header::after {
+    margin-top: 31.6px;
+  }
+}
+
+@media screen and (max-width: 650px) {
+  .header {
+    padding-top: 28px;
+  }
+}
