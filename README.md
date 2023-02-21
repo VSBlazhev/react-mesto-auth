@@ -1,4 +1,4 @@
-# [Проект: Место](https://vsblazhev.github.io/mesto-react/)
+# [Проект: Место](https://vsblazhev.github.io/react-mesto-auth/)
 
 ### Обзор
 Учебный проект, с возможность добавлять фотографии с подписями и ставить лайк
