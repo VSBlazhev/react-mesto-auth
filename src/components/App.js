@@ -9,9 +9,12 @@ import { CurrentUserContext } from "../contexts/CurrentUserContext.js";
 import EditProfilePopup from "./EditProfilePopup.js";
 import EditAvatarPopup from "./EditAvatarPopup.js";
 import AddPlacePopup from "./AddPlacePopup.js";
-import { Routes, Route, useNavigate } from "react-router-dom";
+import { Routes, Route, useNavigate, Navigate } from "react-router-dom";
 import ProtectedRouteElement from "./ProtectedRoute.js";
 import Login from "./Login.js";
+import Register from "./Register.js";
+import auth from "../utils/Auth.js";
+import InfoTooltip from "./InfoTooltip.js";
 
 function App() {
   React.useEffect(() => {
@@ -33,15 +36,72 @@ function App() {
       .catch((err) => {
         console.log(err);
       });
+      handleCheckToken()
   }, []);
+
+  const navigate = useNavigate()
 
   const [currentUser, setCurrentUser] = React.useState({});
   const [isEditProfilePopupOpen, setEditProfileOpen] = React.useState(false);
   const [isAddPlacePopupOpen, setAddPlaceOpen] = React.useState(false);
   const [isEditAvatarPopupOpen, setEditAvatarOpen] = React.useState(false);
+  const [isInfoTooltipOpen, setInfoTooltipOpen] = React.useState(false)
+  const [isSuccesfull, setSuccesfull] = React.useState(true)
   const [selectedCard, setSelectedCard] = React.useState({});
   const [cards, setCards] = React.useState([]);
   const [loggedIn, setLoggedIn] = React.useState(false);
+  const [email, setEmail] = React.useState('')
+
+  function handleLogin(inputs){
+    auth.autorize({email: inputs.email, password: inputs.password})
+    .then((data) => {
+      if (data.token){
+        setLoggedIn(true);
+        handleCheckToken();
+        navigate('/', {replace: true});
+      } 
+    })
+   .catch((err) => {console.log(err)})
+  }
+
+  function handleRegister(inputs){
+    auth.register({email: inputs.email, password: inputs.password})
+    .then(()=>{
+      setSuccesfull(true)
+      setInfoTooltipOpen(true)
+      
+    })
+    .catch((err) =>{
+      setSuccesfull(false)
+      setInfoTooltipOpen(true) 
+      console.log(err)})
+    }
+  
+    function handleCheckToken(){
+      const jwt = localStorage.getItem('jwt');
+      if (jwt) {
+        auth.checkToken(jwt)
+        .then((res) => {
+          if (res) {
+            console.log(res.data.email);
+            console.log(jwt)
+           setEmail(res.data.email)
+            setLoggedIn(true);
+            navigate('/', {replace: true});
+          }
+        })
+        .catch((err) => {
+          console.log(err)
+       });
+      }
+    }
+    
+    function handleSignout(){
+      setLoggedIn(false)
+      localStorage.removeItem('jwt')
+      setEmail('')
+    }
+
 
   function handleEditAvatarClick() {
     setEditAvatarOpen(true);
@@ -59,6 +119,7 @@ function App() {
     setEditAvatarOpen(false);
     setEditProfileOpen(false);
     setAddPlaceOpen(false);
+    setInfoTooltipOpen(false)
     setSelectedCard({});
   }
 
@@ -153,11 +214,13 @@ function App() {
   return (
     <CurrentUserContext.Provider value={currentUser}>
       <div className="page__container">
-        <Header />
+        <Header email={email}
+        onSignout={handleSignout}
+        />
         <Routes>
           <Route
-           exact path="/"
-            element={()=>
+          exact path="/"
+            element={
               <ProtectedRouteElement
               loggedIn={loggedIn}
               onEditProfile={handleEditProfileClick}
@@ -167,12 +230,14 @@ function App() {
               onCardLike={handleCardLike}
               onDelete={handleCardDelete}
               cards={cards}
-              element={Main}
+              element={Main
+  
+              }
               />
             }
           ></Route>
-          <Route path="/sign-in" element={Login}></Route>
-          {/* <Route path="/sign-up"element={}></Route> */}
+          <Route exact path="/sign-in" element={<Login onLogin={handleLogin}/>}></Route>
+          <Route exact path="/sign-up" element={<Register onRegister={handleRegister}/>}></Route>
         </Routes>
 
         <Footer />
@@ -196,6 +261,12 @@ function App() {
           title="Вы уверены"
           buttonText="да"
           onClose={closeAllPoups}
+        />
+        <InfoTooltip 
+        isOpen={isInfoTooltipOpen}
+        isSuccesfull={isSuccesfull}
+        onClose={closeAllPoups}
+        
         />
 
         <ImagePopup card={selectedCard} onClose={closeAllPoups} />

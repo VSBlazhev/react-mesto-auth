@@ -1,8 +1,9 @@
 import React from "react";
+import { Link } from "react-router-dom";
 
-function Login(props){
+function Register(props){
 
-    const {onLogin} = props
+    const {onRegister} = props
     const [formValue,setFormValue] = React.useState({email:'', password:''})
     
     function handleChange(e){
@@ -17,14 +18,14 @@ function Login(props){
 
    function handleSubmit(e) {
         e.preventDefault();
-        props.onLogin({email:formValue.email, password:formValue.password});
+        props.onRegister({email:formValue.email, password:formValue.password});
       }
 
     return (
-<div className="login__container">
-    <h1 className="login__tittle">Вход</h1>
-   <form className="login__form" onSubmit={handleSubmit}>
-    <label className="login__form-label">
+<div className="register__container">
+    <h1 className="register__tittle">Зарегистрироваться</h1>
+   <form className="register__form" onSubmit={handleSubmit}>
+    <label className="register__form-label">
         <input 
         required
         id="email-input"
@@ -33,12 +34,12 @@ function Login(props){
         value={formValue.email}
         onChange={handleChange}
         placeholder="Email"
-        className="login__form-input"/>
+        className="register__form-input"/>
         
         
     </label>
 
-    <label className="login__form-label">
+    <label className="register__form-label">
         <input 
         id="password-input"
         name='password'
@@ -46,19 +47,20 @@ function Login(props){
         value={formValue.password}
         onChange={handleChange}
         placeholder="Пароль"
-        className="login__form-input"/>
+        className="register__form-input"/>
 
         
     </label>
     <button
-    className="login__form-button"
+    className="register__form-button"
     type="submit"
     >
-        Войти
+        Регистрация
         </button>
    </form>
+   <Link to="/sign-in" className="register__link">Уже зарегестрированы? Войти</Link>
    </div>
     )
 }
 
-export default Login
+export default Register
