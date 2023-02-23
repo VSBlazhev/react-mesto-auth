@@ -17,28 +17,6 @@ import auth from "../utils/Auth.js";
 import InfoTooltip from "./InfoTooltip.js";
 
 function App() {
-  React.useEffect(() => {
-    document.body.classList.add("page");
-    api
-      .getUserId()
-      .then((data) => {
-        setCurrentUser(data);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-
-    api
-      .getInitialCards()
-      .then((data) => {
-        setCards(data);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-    handleCheckToken();
-  }, []);
-
   const navigate = useNavigate();
 
   const [currentUser, setCurrentUser] = React.useState({});
@@ -52,6 +30,33 @@ function App() {
   const [loggedIn, setLoggedIn] = React.useState(false);
   const [email, setEmail] = React.useState("");
 
+  React.useEffect(() => {
+    document.body.classList.add("page");
+  });
+
+  React.useEffect(() => {
+    if (loggedIn) {
+      api
+        .getUserId()
+        .then((data) => {
+          setCurrentUser(data);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+
+      api
+        .getInitialCards()
+        .then((data) => {
+          setCards(data);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+      handleCheckToken();
+    }
+  }, [loggedIn]);
+
   function handleLogin(inputs) {
     auth
       .autorize({ email: inputs.email, password: inputs.password })
@@ -64,6 +69,8 @@ function App() {
       })
       .catch((err) => {
         console.log(err);
+        setSuccesfull(false);
+        setInfoTooltipOpen(true);
       });
   }
 
@@ -73,6 +80,7 @@ function App() {
       .then(() => {
         setSuccesfull(true);
         setInfoTooltipOpen(true);
+        navigate("/sign-in", { replace: true });
       })
       .catch((err) => {
         setSuccesfull(false);
@@ -221,7 +229,6 @@ function App() {
         <Header email={email} onSignout={handleSignout} />
         <Routes>
           <Route
-            exact
             path="/"
             element={
               <ProtectedRouteElement
@@ -238,12 +245,10 @@ function App() {
             }
           ></Route>
           <Route
-            exact
             path="/sign-in"
             element={<Login onLogin={handleLogin} />}
           ></Route>
           <Route
-            exact
             path="/sign-up"
             element={<Register onRegister={handleRegister} />}
           ></Route>
