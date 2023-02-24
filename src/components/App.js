@@ -35,6 +35,7 @@ function App() {
   });
 
   React.useEffect(() => {
+    handleCheckToken();
     if (loggedIn) {
       api
         .getUserId()
@@ -53,7 +54,6 @@ function App() {
         .catch((err) => {
           console.log(err);
         });
-      handleCheckToken();
     }
   }, [loggedIn]);
 
